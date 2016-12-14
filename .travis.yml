@@ -1,17 +1,33 @@
 language: java
-script: mvn -Psafer -Pintegration -Passembler -B -e -T 1C verify
+sudo: false
+script: 
+  - mvn -Psafer -Pintegration -B -e -T 1C verify
 jdk:
-- oraclejdk8
+  - oraclejdk8
 
 addons:
-  apt:
+  - apt:
     packages:
-      - oracle-java8-installer
+        - oracle-java8-installer
+  - sonarqube:
+      token:
+#8kdata's repo secure
+#          secure: "bCs5elDImlhFbudosxFvkMztzlQMm7mOhgSnZkDBVi2UyHJPCPTUSDDmBMVJGamQiXuBME/rk925TLuRgrvhuOyr8ff9WzC6oZoHVtGkgYo2drP6/WFFSn24J8Tjog/og1eoBnPKeao/RirZs9bm8wwyMcVgKSwoTJNvClqs6niD4Ydh5IZjQDzZeTqUkBP9DBsN/r2vQJieA8r8FIppIl4rSL4HjMn5v+msp7k5rsgqnFYpfQ17MSvyG0er5dqRidNzD4gUORJni3OeRlxu03ufnYD2QfjlbixG2mprNjiAsAN/WdMeaNMAUNiw/l5FEBmE39ATUv7rmFkRYTd58aPjo1S5Bd1PyZ/xxUTpo/TV97LT0S+PnZTyJS1g+i+IYzi23KQUgFW6UXVXD7bTRg18NFZCri+kWDvFFuVBOvrV1IoF5w+BIXIPJZB5Ha/1Z30Bx3kEdwTMRlSzPKI5RSePjn21dY/x5yCp2Npw6s4wWh6zZRgXkO1IuY4ocd6llA+rUKtDlDgIAoHqLH0lMpd4+77WEp2YkeHySMZzL4z64XiM0Xp4Kls4A+zzrq1lOyChZWCM1kojUmzLAzArMoAvjmR7rNbMKlkq8NcMtgSMYRzce7gY7Cd7BDMUbUXbCx3JSzz2HSxBpM8a5uwoKtYJZDxMEer+NMLRLw8MInA="
+      token:
+#gortiz's repo secure
+          secure: "Dz2TZLC4XCJMBfxwWXZhe4R3tdtIl0iuzsPSkoVisvdJQOJfgw5xYMcFcXgkQoIi2Xt52Tf4ObLFNiZkKj2IcNGYnQIDnTtKkQd5jsPETvlucWqJ5b76BpTw7J/2L6YNjVSg/4T+j28EKwLWoUgKbZHD5veKQ9MOG3dq6EpO3mC3zYQ+WGfAyhaBvRIJ8/u1cCKzSJ2hMnxlo1fzx8U3kS7k8hyLFxKmDXLEOPzYcmgw9nlnQSRnrFwiKgR3TVyjCiNs2ERcrVYv0IjhXSXjAxcsTgTTdIgCvuzMUQ8h9W252DNS85onUsBcsRumsa3eVpIUiED+304jvHl/EUGnkijYFH5Ao/AEjxwnT5L27LlNH6MVjo4+JO/zpUgUYa8p5GbteqYgyLlI6e1IrjJhC5Dr9Z0hz6L4VNfjYCyMRU2VwxidPndTKXf/2gOTGFkOdXmneYF/tl+QTHS8cnlHXLPfE8XxIQ1AqhtFjG09nGBQvFiTBqIHAV878gYvK/TqPjX955e2zAfUjWIa6pinHABkvh7QdH0tHtHHc8oCOMCa0WsR3gutaJrO7ecDcur7ShvkTgL5vLSPwYelXE9s32gz1ydrOxiuXQXNl7w9tAnrG3IbsQGp1QsyNLI5qsS2kDMD8iOJfKb1BaX6yNAuwm7IFqvdpm3JFbhHZhmE6c4="
 
 before_script:
 - export GIT_BRANCH=$TRAVIS_BRANCH
 
-sudo: false
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.sonar/cache'
+
+before_cache:
+  # remove all the artifacts (JAR, ZIP) that are installed in local repo because of a previous installation
+  - rm -rf $HOME/.m2/repository/com/eightkdata/mongowp
 
 before_deploy:
   - echo "<settings><servers><server><id>ossrh-snapshot</id><username>\${env.MAVEN_DEPLOY_USER}</username><password>\${env.MAVEN_DEPLOY_PASS}</password></server><server><id>ossrh-release</id><username>\${env.MAVEN_DEPLOY_USER}</username><password>\${env.MAVEN_DEPLOY_PASS}</password></server></servers></settings>" > ~/settings.xml
@@ -27,3 +43,4 @@ deploy:
   
 after_success:
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+  - if [[ $TRAVIS_SECURE_ENV_VARS && $TRAVIS_BRANCH = 'devel' ]]; then mvn sonar:sonar || echo "Error while notifying SonarQube"; else echo "SonarQube: not notified"; fi
