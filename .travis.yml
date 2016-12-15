@@ -42,5 +42,5 @@ deploy:
     jdk: oraclejdk8
   
 after_success:
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
-  - if [[ $TRAVIS_SECURE_ENV_VARS && $TRAVIS_BRANCH = 'devel' ]]; then mvn sonar:sonar || echo "Error while notifying SonarQube"; else echo "SonarQube: not notified"; fi
+  - bash <(curl -s https://codecov.io/bash) || echo 'Codecov did not collect coverage reports'
+  - if [[ $TRAVIS_SECURE_ENV_VARS && $TRAVIS_BRANCH = 'devel' ]]; then mvn sonar:sonar || echo 'Error while notifying SonarQube'; else echo 'SonarQube: not notified'; fi
