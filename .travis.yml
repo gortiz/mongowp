@@ -6,17 +6,15 @@ script:
 jdk:
   - oraclejdk8
 
+env:
+# the SONAR_TOKEN variable
+  - secure: "nrvHV6/M8crm+49iAq5QhI8JwhntRtB1HkdRDhzsNzCfslnrlxHitxB//z/hKd+f0fEK5raJdEapyzp9wZYrqSMBvCnQaJbtAph5CW089+JjTphOBezlHlLD0KlNkp+OmTjlu5Sb6z2VqcDAWWTCM+BqhiD4X+jgRy7ZwwbYW9Fi8rUufdDSeDGbofeoKwXLnzO53ZmpHMCRZLOMWaVVUGCIjSkIURY1JgHQU+3qJqNTYx5gxIdYb/cOQeY2EKw2fIkeEyrnnYHVyDqUAC/t0LpjUPfbNcRsz/io8nxw+XYQ0n5ogmfy3I5sWDf92J4+q/MYBYgZt9S7+mePIZMkSxFgrXhnHxb3Njb7Z69xWdipQcfDpAxB9MStDuHi2hLzHjblCCdRCOtLqXsPoNmAQCOi2NZH51BZzTtGJOSTQkAk1wG3NmzYNoII8aUcqZ/U6ZgOiw9fDf0ngXAfNOHXVqVtnNIyEmsLXLFTw3TxTsejacvo1gaBiCjjhOjoGqDjAa9stJLWZZWlE9Bvr4ohl28DEI7RsRjy5lX/k4vvg7yEdxh9RDlRN6AFWPnBQ5n37UFKoEg1Np5x8ghu7kAMVBgn7ezWTpQkXCD0c8vXl61AbiZxAJ7iizz0v5OV3t8pXhqQhM+3mdQTsjQv41gwcVke+6A1iF7Y2E6W6T78lsA="
+
 addons:
   - apt:
     packages:
         - oracle-java8-installer
-  - sonarqube:
-      token:
-#8kdata's repo secure
-#          secure: "bCs5elDImlhFbudosxFvkMztzlQMm7mOhgSnZkDBVi2UyHJPCPTUSDDmBMVJGamQiXuBME/rk925TLuRgrvhuOyr8ff9WzC6oZoHVtGkgYo2drP6/WFFSn24J8Tjog/og1eoBnPKeao/RirZs9bm8wwyMcVgKSwoTJNvClqs6niD4Ydh5IZjQDzZeTqUkBP9DBsN/r2vQJieA8r8FIppIl4rSL4HjMn5v+msp7k5rsgqnFYpfQ17MSvyG0er5dqRidNzD4gUORJni3OeRlxu03ufnYD2QfjlbixG2mprNjiAsAN/WdMeaNMAUNiw/l5FEBmE39ATUv7rmFkRYTd58aPjo1S5Bd1PyZ/xxUTpo/TV97LT0S+PnZTyJS1g+i+IYzi23KQUgFW6UXVXD7bTRg18NFZCri+kWDvFFuVBOvrV1IoF5w+BIXIPJZB5Ha/1Z30Bx3kEdwTMRlSzPKI5RSePjn21dY/x5yCp2Npw6s4wWh6zZRgXkO1IuY4ocd6llA+rUKtDlDgIAoHqLH0lMpd4+77WEp2YkeHySMZzL4z64XiM0Xp4Kls4A+zzrq1lOyChZWCM1kojUmzLAzArMoAvjmR7rNbMKlkq8NcMtgSMYRzce7gY7Cd7BDMUbUXbCx3JSzz2HSxBpM8a5uwoKtYJZDxMEer+NMLRLw8MInA="
-#gortiz's repo secure
-        secure: "EhADDO45B+ualUiiTWssSO5iXORcIR2iqNSturxLORa6z9sd6i+FBTqzFsEMI9LlesYHZ+8tLHAKRb8PwhbrZ2naOZ2oxGTVoMROngfx9eeCJ1EKbFN15V35Sx0ZGRJG5sqgienMy7SozdkqBA/trVKJrFq0YaGU9TAEiHa+a6Ed0qyGpF74wOmDp7/NUp/Q0ShOrNxsg1ZY4rxO1JlhRsXlJ8N1AS2HlBxYFvJ4dso6AVVV64kw5BJMNsJoOq0efre0e8M4IAz0NX0OnX3XMe6woJiuYmDRCs8a70Y9Lc1vwekwIacmX92W2XojS6a5bZt+V/94AkpMpKT6pJRNkKCniyvsfoCbmWs6f1+pcMncaPfE/BJ0Ljmw+CcEtryqXxxk1qHIKOhtMuE168AdcaaANokYJRuodOXjVsFBfh108/j6pWSNHrclichYxhCvRoOPl1Aw9yhDgzjw97I7F/KuV+BTTbBhRUmEKP3+hsQfMwhRx5KsNTs5gwZ/cNSnyGj7GW5ONwUlqkl3bHPjHWP27AMrC4LMTQFPERknSHEB6RFxrt0+zu+Ta9fcIuwMsj0/PRBsOwJST6eNB2SuNLb6P20JR6bZBNtgNReDPp+uoTGPQAwe/YTb2tFmPM+rqE12YowOacgUwDO0urG5ogwAfk+8iRoqi8zybxv9m50="
-
+  - sonarqube: true
 
 before_script:
 - export GIT_BRANCH=$TRAVIS_BRANCH
@@ -31,6 +29,14 @@ before_cache:
   - rm -rf $HOME/.m2/repository/com/eightkdata/mongowp
   - rm -rf $HOME/.m2/repository/com/8kdata/mongowp
 
+install:
+- mvn dependency:go-offline
+  
+after_success:
+  - echo $TRAVIS_REPO_SLUG
+  - if [[ $TRAVIS_REPO_SLUG = gortiz/mongowp ]]; then bash <(curl -s https://codecov.io/bash) || echo 'Codecov did not collect coverage reports'; else echo 'Codecov not notified'; fi
+  - if [[ $TRAVIS_REPO_SLUG = gortiz/mongowp ]]; then mvn sonar:sonar || echo 'Error while notifying SonarQube'; else echo 'SonarQube not notified'; fi
+
 before_deploy:
   - echo "<settings><servers><server><id>ossrh-snapshot</id><username>\${env.MAVEN_DEPLOY_USER}</username><password>\${env.MAVEN_DEPLOY_PASS}</password></server><server><id>ossrh-release</id><username>\${env.MAVEN_DEPLOY_USER}</username><password>\${env.MAVEN_DEPLOY_PASS}</password></server></servers></settings>" > ~/settings.xml
 
@@ -42,9 +48,3 @@ deploy:
     repo: 8kdata/mongowp
     branch: devel
     jdk: oraclejdk8
-  
-after_success:
-  - if [[ $TRAVIS_REPO_SLUG = 8kdata/mongowp ]]; then bash <(curl -s https://codecov.io/bash) || echo 'Codecov did not collect coverage reports'; else echo 'Codecov not notified'; fi
-  - echo $TRAVIS_SECURE_ENV_VARS
-  - echo $TRAVIS_BRANCH 
-  - if [[ $TRAVIS_SECURE_ENV_VARS && $TRAVIS_BRANCH = 'devel' ]]; then mvn sonar:sonar || echo 'Error while notifying SonarQube'; else echo 'SonarQube not notified'; fi
